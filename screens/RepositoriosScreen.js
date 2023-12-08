@@ -127,7 +127,7 @@ function RepositoriosScreen({ navigation }) {
             style={styles.addButton}
             onPress={handleAddButtonPress}
           >
-            <Text style={styles.addButtonText}>Add</Text>
+            <Text style={styles.addButtonText}>Adicionar</Text>
           </TouchableOpacity>
           <FlatList
             data={repositories}

@@ -1,3 +1,10 @@
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import * as React from "react";
 import {
   FlatList,
@@ -5,74 +12,87 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Modal,
+  TextInput,
+  Button,
+  Alert,
 } from "react-native";
 
-const issuesData = [
-  {
-    id: 1,
-    title: "Bug: App crashes on startup",
-    description: "The app crashes immediately upon opening.",
-    status: "Open",
-  },
-  {
-    id: 2,
-    title: "Feature Request: Dark mode",
-    description: "Implement a dark mode option for the app.",
-    status: "Open",
-  },
-  {
-    id: 3,
-    title: "Bug: Unable to login",
-    description: "Users are unable to log in to their accounts.",
-    status: "In Progress",
-  },
-  {
-    id: 4,
-    title: "Enhancement: Improve performance",
-    description: "Optimize app performance for smoother navigation.",
-    status: "Open",
-  },
-  {
-    id: 5,
-    title: "Bug: Incorrect data displayed",
-    description: "Data displayed on some screens is incorrect.",
-    status: "Closed",
-  },
-  {
-    id: 6,
-    title: "Feature Request: Push notifications",
-    description: "Add push notification support for new updates.",
-    status: "Open",
-  },
-];
+import { FIREBASE_DB } from "../FirebaseConfig";
 
 function IssuesAndTasksScreen({ navigation }) {
   const [selectedIssue, setSelectedIssue] = React.useState(null);
+  const [isAddIssueModalVisible, setAddIssueModalVisible] =
+    React.useState(false);
+  const [newIssueTitle, setNewIssueTitle] = React.useState("");
+  const [newIssueDescription, setNewIssueDescription] = React.useState("");
 
-  // Function to handle selecting an issue
+  const [tasks, setTasks] = React.useState([]);
+
+  React.useEffect(() => {
+    const q = query(collection(FIREBASE_DB, "tasks"), orderBy("title"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const tasks = [];
+      querySnapshot.forEach((doc) => {
+        tasks.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+      setTasks(tasks);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleSelectIssue = (issue) => {
     setSelectedIssue(issue);
   };
 
-  // Function to close the selected issue
   const handleCloseIssue = () => {
     setSelectedIssue(null);
   };
 
+  const openAddIssueModal = () => {
+    setAddIssueModalVisible(true);
+  };
+
+  const closeAddIssueModal = () => {
+    setAddIssueModalVisible(false);
+    setNewIssueTitle("");
+    setNewIssueDescription("");
+  };
+
+  const handleAddIssue = () => {
+    if (!newIssueTitle || !newIssueDescription) {
+      Alert.alert("Preencha todos os campos!");
+      return;
+    }
+
+    addDoc(collection(FIREBASE_DB, "tasks"), {
+      title: newIssueTitle,
+      description: newIssueDescription,
+      status: "Open",
+    });
+
+    closeAddIssueModal();
+  };
+
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.heading}>Issues</Text> */}
+      <Button title="Adicionar" onPress={openAddIssueModal} />
       <FlatList
-        data={issuesData}
+        data={tasks}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.issueItem}
-            onPress={() => handleSelectIssue(item)}
-          >
-            <Text style={styles.issueTitle}>{item.title}</Text>
-            <Text style={styles.issueStatus}>Status: {item.status}</Text>
-          </TouchableOpacity>
+          <View style={styles.issueContainer}>
+            <TouchableOpacity
+              style={styles.issueItem}
+              onPress={() => handleSelectIssue(item)}
+            >
+              <Text style={styles.issueTitle}>{item.title}</Text>
+              <Text style={styles.issueStatus}>Status: {item.status}</Text>
+            </TouchableOpacity>
+          </View>
         )}
       />
 
@@ -83,13 +103,59 @@ function IssuesAndTasksScreen({ navigation }) {
             {selectedIssue.description}
           </Text>
           <TouchableOpacity
+            style={styles.button}
+            onPress={() =>
+              Alert.alert(
+                "Registrado! agora voce receberá notificações sobre essa issue",
+              )
+            }
+          >
+            <Text style={styles.buttonText}>Acompanhar issue</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleCloseIssue}>
+            <Text style={styles.buttonText}>Adicionar meta</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.closeButton}
             onPress={handleCloseIssue}
           >
-            <Text style={styles.closeButtonText}>Close Issue</Text>
+            <Text style={styles.buttonText}>Fechar</Text>
           </TouchableOpacity>
         </View>
       )}
+
+      <Modal animationType="slide" transparent visible={isAddIssueModalVisible}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Adicionar Nova Issue</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Título da Issue"
+              value={newIssueTitle}
+              onChangeText={(text) => setNewIssueTitle(text)}
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Descrição da Issue"
+              value={newIssueDescription}
+              onChangeText={(text) => setNewIssueDescription(text)}
+              multiline
+            />
+            <View style={styles.modalButtonContainer}>
+              <Button
+                title="Cancelar"
+                onPress={closeAddIssueModal}
+                color="#d9534f"
+              />
+              <Button
+                title="Adicionar"
+                onPress={handleAddIssue}
+                color="#007BFF"
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -97,9 +163,11 @@ function IssuesAndTasksScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // alignItems: "center",
-    // justifyContent: "center",
     padding: 20,
+  },
+  issueContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   heading: {
     fontSize: 24,
@@ -107,10 +175,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   issueItem: {
-    backgroundColor: "#f0f0f0",
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 4,
+    backgroundColor: "#ffffff",
+    padding: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    flex: 1,
+    elevation: 3,
+    shadowColor: "#000000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
   },
   issueTitle: {
     fontSize: 16,
@@ -135,17 +208,55 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 10,
   },
+  button: {
+    backgroundColor: "#3182ce",
+    padding: 10,
+    marginTop: 10,
+    borderRadius: 4,
+  },
   closeButton: {
     backgroundColor: "#d9534f",
     padding: 10,
-    marginTop: 20,
+    marginTop: 10,
     borderRadius: 4,
   },
-  closeButtonText: {
+  buttonText: {
     color: "white",
     textAlign: "center",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 3,
+    shadowColor: "#000000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 8,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalInput: {
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginBottom: 10,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
 

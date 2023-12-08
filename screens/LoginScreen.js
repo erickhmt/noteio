@@ -3,7 +3,7 @@ import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { GithubAuthProvider, signInWithCredential } from "firebase/auth";
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Button } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 import { FIREBASE_AUTH } from "../FirebaseConfig";
 import { useAuth } from "../context/auth";
@@ -26,7 +26,7 @@ const LoginScreen = ({ navigation }) => {
         "read:user",
         "user:follow",
         "repo",
-        "public_repo",
+        // "public_repo",
       ],
       redirectUri: makeRedirectUri({ scheme: "noteioapp" }),
     },
@@ -92,12 +92,6 @@ const LoginScreen = ({ navigation }) => {
         <Ionicons name="logo-github" color="white" size={24} />
         <Text style={styles.githubButtonText}>Conecte-se com o GitHub</Text>
       </TouchableOpacity>
-      {/* <View style={styles.signUpContainer}>
-        <Text style={styles.signUpText}>Não possui uma conta?</Text>
-        <TouchableOpacity>
-          <Text style={styles.signUpLink}>Registre-se</Text>
-        </TouchableOpacity>
-      </View> */}
     </View>
   );
 };

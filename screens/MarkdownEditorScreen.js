@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, ScrollView, Text, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet } from "react-native";
 import Markdown from "react-native-marked";
 
 const MarkdownEditorScreen = () => {
@@ -37,16 +37,14 @@ const MarkdownEditorScreen = () => {
         onChangeText={handleTextChange}
         value={markdownText}
       />
-      <ScrollView style={styles.previewContainer}>
-        <Text style={styles.preview}>
-          <Markdown
-            value={markdownText}
-            flatListProps={{
-              initialNumToRender: 8,
-            }}
-          />
-        </Text>
-      </ScrollView>
+      <View style={styles.previewContainer}>
+        <Markdown
+          value={markdownText}
+          flatListProps={{
+            initialNumToRender: 8,
+          }}
+        />
+      </View>
     </View>
   );
 };
@@ -66,9 +64,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: "#fff",
-  },
-  preview: {
-    flex: 1,
   },
 });
 
