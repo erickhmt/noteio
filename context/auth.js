@@ -7,15 +7,17 @@ const initialUserState = {
   uid: "",
   createdAt: "",
   displayName: "",
+  username: "",
   lastLoginAt: "",
   photoUrl: "",
   providerId: "",
   email: "",
+  token: "",
 };
 
 const contextInitialState = {
   user: initialUserState,
-  signIn: async () => {},
+  signIn: async (token) => {},
   signOut: async () => {},
 };
 
@@ -34,7 +36,7 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [user, setUser] = React.useState(initialUserState);
 
-  const signIn = (user) => setUser(user);
+  const signIn = (token) => setUser({ token, ...user });
 
   const signOut = () => {
     setUser(null);
@@ -43,7 +45,8 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(FIREBASE_AUTH, async (user) => {
-      console.log(user);
+      console.log("*****************************************");
+      console.log("****************** USER ", user);
       if (user) {
         const { uid, displayName, email, photoURL, providerId } = user;
         const createdAt = user.metadata.creationTime;
@@ -57,6 +60,7 @@ export function AuthProvider({ children }) {
           photoUrl: photoURL,
           providerId,
           email,
+          ...user,
         });
       } else {
         setUser(null);

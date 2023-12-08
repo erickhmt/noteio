@@ -3,9 +3,10 @@ import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { GithubAuthProvider, signInWithCredential } from "firebase/auth";
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Button } from "react-native";
 
 import { FIREBASE_AUTH } from "../FirebaseConfig";
+import { useAuth } from "../context/auth";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -16,24 +17,27 @@ const discovery = {
 };
 
 const LoginScreen = ({ navigation }) => {
-  const [request, response, promptAsync] = useAuthRequest(
+  const [request, response, promptAsync ] = useAuthRequest(
     {
       clientId: process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID,
-      scopes: ["identity", "user:email", "user:follow"],
-      redirectUri: makeRedirectUri(),
+      scopes: [
+        "identity",
+        "user:email",
+        "read:user",
+        "user:follow",
+        "repo",
+        "public_repo",
+      ],
+      redirectUri: makeRedirectUri({ scheme: "noteioapp" }),
     },
     discovery,
   );
 
+  const auth = useAuth();
+
   React.useEffect(() => {
     handleResponse();
   }, [response]);
-
-  // React.useEffect(() => {
-  //   if (request) {
-  //     console.log("request: ", request);
-  //   }
-  // }, [request]);
 
   async function handleResponse() {
     if (response?.type === "success") {
@@ -41,14 +45,15 @@ const LoginScreen = ({ navigation }) => {
       const { token_type, scope, access_token } =
         await createTokenWithCode(code);
 
+      auth.signIn(access_token);
+
       // Just in case we don't have the token return early
       if (!access_token) return;
 
       const credential = GithubAuthProvider.credential(access_token);
       // Finally we use that credential to register the user in Firebase
       const data = await signInWithCredential(FIREBASE_AUTH, credential);
-      console.log("login data: ", data);
-      navigation.navigate("Home");
+      // console.log("login data: ", data);
     }
   }
 
