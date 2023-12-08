@@ -2,6 +2,7 @@
   "expo": {
     "name": "noteio-sinacen",
     "slug": "noteio-sinacen",
+    "scheme": "noteioapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
