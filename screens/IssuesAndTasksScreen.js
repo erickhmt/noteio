@@ -30,7 +30,7 @@ function IssuesAndTasksScreen({ navigation }) {
   const [tasks, setTasks] = React.useState([]);
 
   React.useEffect(() => {
-    const q = query(collection(FIREBASE_DB, "tasks"), orderBy("title"));
+    const q = query(collection(FIREBASE_DB, "tasks"), orderBy("title", "desc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const tasks = [];
       querySnapshot.forEach((doc) => {
@@ -104,15 +104,12 @@ function IssuesAndTasksScreen({ navigation }) {
           </Text>
           <TouchableOpacity
             style={styles.button}
-            onPress={() =>
+            onPress={() => {
               Alert.alert(
                 "Registrado! agora voce receberá notificações sobre essa issue",
-              )
-            }
+              );
+            }}
           >
-            <Text style={styles.buttonText}>Acompanhar issue</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={handleCloseIssue}>
             <Text style={styles.buttonText}>Adicionar meta</Text>
           </TouchableOpacity>
           <TouchableOpacity

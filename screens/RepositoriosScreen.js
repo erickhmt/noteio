@@ -91,7 +91,9 @@ function RepositoriosScreen({ navigation }) {
         <View style={styles.repositoryItemHeader}>
           <Text style={styles.repositoryName}>{item.name}</Text>
           <View style={styles.repositoryItemHeaderVisibility}>
-            <Text style={{ color: "#FFF", fontSize: 10 }}>público</Text>
+            <Text style={{ color: "#FFF", fontSize: 10 }}>
+              {item.visibility}
+            </Text>
           </View>
         </View>
         <Text style={styles.repositoryDescription}>{item.description}</Text>

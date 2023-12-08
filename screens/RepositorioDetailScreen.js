@@ -12,12 +12,12 @@ function RepositorioDetailScreen({ route, navigation }) {
 
   const navigateToSection = (section) => {
     console.log(`Navigating to ${section}`);
-    navigation.navigate(section);
+    navigation.navigate(section, { item });
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.repoName}>{item.name}</Text>
+      <Text style={styles.repoName}>{item.nadescription}</Text>
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigateToSection("IssuesAndTasks")}
@@ -31,11 +31,10 @@ function RepositorioDetailScreen({ route, navigation }) {
         <Text style={styles.buttonText}>Documentação</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={styles.buttonDisabled}
-        disabled
-        onPress={() => navigateToSection("Logs de Desenvolvimento")}
+        style={styles.button}
+        onPress={() => navigateToSection("Anotacoes")}
       >
-        <Text style={styles.buttonText}>Logs de Desenvolvimento</Text>
+        <Text style={styles.buttonText}>Anotações</Text>
       </TouchableOpacity>
     </View>
   );
@@ -43,7 +42,7 @@ function RepositorioDetailScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -57,15 +56,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 4,
     marginBottom: 10,
-    width: 200,
-    alignItems: "center",
-  },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
-    padding: 15,
-    borderRadius: 4,
-    marginBottom: 10,
-    width: 200,
+    width: 300,
     alignItems: "center",
   },
   buttonText: {

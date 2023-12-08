@@ -2,12 +2,16 @@ import React, { useState, useEffect } from "react";
 import { View, TextInput, StyleSheet } from "react-native";
 import Markdown from "react-native-marked";
 
-const MarkdownEditorScreen = () => {
+const MarkdownEditorScreen = ({ route }) => {
+  const { item } = route.params;
+
   const [markdownText, setMarkdownText] = useState("");
 
   useEffect(() => {
     fetch(
-      "https://raw.githubusercontent.com/erickhmt/controle-horas/master/README.md",
+      `https://raw.githubusercontent.com/${item?.full_name}/${
+        item?.default_branch || "master"
+      }/README.md`,
     )
       .then((response) => {
         if (!response.ok) {

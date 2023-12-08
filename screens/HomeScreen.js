@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import { View } from "react-native";
 
+import AnotacoesScreen from "./AnotacoesScreen";
 import ContaScreen from "./ContaScreen";
 import IssuesAndTasksScreen from "./IssuesAndTasksScreen";
 import MarkdownEditorScreen from "./MarkdownEditorScreen";
@@ -45,6 +46,14 @@ function RepositoriosTabStack() {
         component={MarkdownEditorScreen}
         options={{
           title: "Readme.md",
+          headerBackTitle: "Back",
+        }}
+      />
+      <RepositoriosStack.Screen
+        name="Anotacoes"
+        component={AnotacoesScreen}
+        options={{
+          title: "Anotações",
           headerBackTitle: "Back",
         }}
       />
