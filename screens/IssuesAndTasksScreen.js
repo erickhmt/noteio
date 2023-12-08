@@ -22,8 +22,13 @@ import { FIREBASE_DB } from "../FirebaseConfig";
 
 function IssuesAndTasksScreen({ navigation }) {
   const [selectedIssue, setSelectedIssue] = React.useState(null);
+
   const [isAddIssueModalVisible, setAddIssueModalVisible] =
     React.useState(false);
+  const [isAddMetaModalVisible, setAddMetaModalVisible] = React.useState(false);
+  const [newMetaTitle, setNewMetaTitle] = React.useState("");
+  const [newMetaDateTime, setNewMetaDateTime] = React.useState("");
+
   const [newIssueTitle, setNewIssueTitle] = React.useState("");
   const [newIssueDescription, setNewIssueDescription] = React.useState("");
 
@@ -44,6 +49,12 @@ function IssuesAndTasksScreen({ navigation }) {
     return () => unsubscribe();
   }, []);
 
+  const closeAddMetaModal = () => {
+    setAddMetaModalVisible(false);
+    setNewMetaTitle("");
+    setNewMetaDateTime("");
+  };
+
   const handleSelectIssue = (issue) => {
     setSelectedIssue(issue);
   };
@@ -52,14 +63,22 @@ function IssuesAndTasksScreen({ navigation }) {
     setSelectedIssue(null);
   };
 
-  const openAddIssueModal = () => {
-    setAddIssueModalVisible(true);
-  };
-
   const closeAddIssueModal = () => {
     setAddIssueModalVisible(false);
     setNewIssueTitle("");
     setNewIssueDescription("");
+  };
+
+  const handleAddMeta = () => {
+    if (!newMetaTitle || !newMetaDateTime) {
+      Alert.alert("Preencha todos os campos!");
+      return;
+    }
+
+    Alert.alert(
+      "Voce receberá uma notifiação dessa issue ás: " + newMetaDateTime,
+    );
+    closeAddMetaModal();
   };
 
   const handleAddIssue = () => {
@@ -79,7 +98,7 @@ function IssuesAndTasksScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Button title="Adicionar" onPress={openAddIssueModal} />
+      <Button title="Adicionar" onPress={() => setAddIssueModalVisible(true)} />
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id.toString()}
@@ -105,9 +124,7 @@ function IssuesAndTasksScreen({ navigation }) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              Alert.alert(
-                "Registrado! agora voce receberá notificações sobre essa issue",
-              );
+              setAddMetaModalVisible(true);
             }}
           >
             <Text style={styles.buttonText}>Adicionar meta</Text>
@@ -147,6 +164,39 @@ function IssuesAndTasksScreen({ navigation }) {
               <Button
                 title="Adicionar"
                 onPress={handleAddIssue}
+                color="#007BFF"
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal animationType="slide" transparent visible={isAddMetaModalVisible}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Adicionar Meta</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Título da Meta"
+              value={newMetaTitle}
+              onChangeText={(text) => setNewMetaTitle(text)}
+            />
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Horário"
+              value={newMetaDateTime}
+              onChangeText={(text) => setNewMetaDateTime(text)}
+              multiline
+            />
+            <View style={styles.modalButtonContainer}>
+              <Button
+                title="Cancelar"
+                onPress={closeAddMetaModal}
+                color="#d9534f"
+              />
+              <Button
+                title="Adicionar"
+                onPress={handleAddMeta}
                 color="#007BFF"
               />
             </View>
