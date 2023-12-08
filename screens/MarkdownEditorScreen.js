@@ -1,6 +1,6 @@
-// import marked from "marked";
 import React, { useState, useEffect } from "react";
 import { View, TextInput, ScrollView, Text, StyleSheet } from "react-native";
+import Markdown from "react-native-marked";
 
 const MarkdownEditorScreen = () => {
   const [markdownText, setMarkdownText] = useState("");
@@ -10,7 +10,6 @@ const MarkdownEditorScreen = () => {
       "https://raw.githubusercontent.com/erickhmt/controle-horas/master/README.md",
     )
       .then((response) => {
-        // Check if the response status is OK (200)
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -18,7 +17,6 @@ const MarkdownEditorScreen = () => {
         return response.text();
       })
       .then((data) => {
-        console.log("******************* data: ", data);
         setMarkdownText(data);
       })
       .catch((error) => {
@@ -41,8 +39,12 @@ const MarkdownEditorScreen = () => {
       />
       <ScrollView style={styles.previewContainer}>
         <Text style={styles.preview}>
-          {/* {marked(markdownText)} */}
-          lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          <Markdown
+            value={markdownText}
+            flatListProps={{
+              initialNumToRender: 8,
+            }}
+          />
         </Text>
       </ScrollView>
     </View>
@@ -52,7 +54,7 @@ const MarkdownEditorScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column", // Changed to column layout
+    flexDirection: "column",
   },
   editor: {
     flex: 1, // Takes up all available vertical space
@@ -61,9 +63,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   previewContainer: {
-    flex: 1, // Takes up all available vertical space
+    flex: 1,
     padding: 16,
-    backgroundColor: "lightgray",
+    backgroundColor: "#fff",
   },
   preview: {
     flex: 1,

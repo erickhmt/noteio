@@ -7,18 +7,21 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 
 import { useAuth } from "../context/auth";
 
 function RepositoriosScreen({ navigation }) {
   const [repositories, setRepositories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const auth = useAuth();
 
   useEffect(() => {
     const fetchRepositories = async () => {
       const token = auth?.user?.accessToken || "";
 
+      setLoading(true);
       fetch("https://api.github.com/users/erickhmt/repos")
         .then((response) => {
           // Check if the response status is OK (200)
@@ -34,6 +37,9 @@ function RepositoriosScreen({ navigation }) {
         })
         .catch((error) => {
           console.error("Fetch error:", error);
+        })
+        .finally(() => {
+          setLoading(false);
         });
     };
 
@@ -113,15 +119,24 @@ function RepositoriosScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.addButton} onPress={handleAddButtonPress}>
-        <Text style={styles.addButtonText}>Add</Text>
-      </TouchableOpacity>
-      <FlatList
-        data={repositories}
-        style={{ width: "100%" }}
-        renderItem={renderRepositoryItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
+      {loading ? (
+        <ActivityIndicator size="large" color="#007AFF" />
+      ) : (
+        <>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={handleAddButtonPress}
+          >
+            <Text style={styles.addButtonText}>Add</Text>
+          </TouchableOpacity>
+          <FlatList
+            data={repositories}
+            style={{ width: "100%" }}
+            renderItem={renderRepositoryItem}
+            keyExtractor={(item) => item.id.toString()}
+          />
+        </>
+      )}
     </View>
   );
 }
